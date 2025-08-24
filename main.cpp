@@ -1,10 +1,15 @@
-
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <cctype>
-#include "COMMAND_FUNCTIONS.h"
+#include "secuencias.h"
+#include <list>
+
+//-------------------------------------------------------------------------------------
+typedef Secuencias sec;
+typedef std::list< sec > secu;
+//-------------------------------------------------------------------------------------
 
 struct Command {
     std::string name;
@@ -54,6 +59,10 @@ void printCommands(const std::vector<T> &vec) {
 }
 
 int main() {
+
+    sec temp;
+    secu ListSecuencias;
+    
     std::string line;
     while (true) {
         std::cout << "$ ";
@@ -118,39 +127,39 @@ int main() {
                 if (!valid) continue;
 
 	    if(cmd=="cargar"){
-	        cargar(tokens[1]); 	
+	        ListSecuencias = temp.cargar(tokens[1]); 	
 	    }
 
 	    if(cmd=="listar_secuencias"){
-	        listar_secuencias();
+	        temp.listar_secuencias();
 	    }
 
 	    if(cmd=="histograma"){
-	        histograma(tokens[1]);
+	        temp.histograma(tokens[1]);
 	    }
 	
 	    if(cmd=="es_subsecuencia"){
-	        es_subsecuencia(tokens[1]);
+	        temp.es_subsecuencia(tokens[1]);
 	    }
 	
 	    if(cmd=="enmascarar"){
-           enmascarar(tokens[1]);
+           temp.enmascarar(tokens[1]);
 	    }
         
         if(tokens[0]=="guardar"){
-            guardar(tokens[1]);
+            temp.guardar(tokens[1]);
         }
         else if(tokens[0]=="codificar"){
-            codificar(tokens[1]);
+            temp.codificar(tokens[1]);
         }
         else if(tokens[0]=="decodificar"){
-            decodificar(tokens[1]);
+            temp.decodificar(tokens[1]);
         }
         else if(tokens[0]=="ruta_mas_corta"){
-            ruta_mas_corta(tokens[1], std::stoi(tokens[2]), std::stoi(tokens[3]), std::stoi(tokens[4]),std::stoi(tokens[5]));
+            temp.ruta_mas_corta(tokens[1], std::stoi(tokens[2]), std::stoi(tokens[3]), std::stoi(tokens[4]),std::stoi(tokens[5]));
         }
        else if (tokens[0] == "base_remota") {
-    base_remota(tokens[1], std::stoi(tokens[2]), std::stoi(tokens[3]));
+            temp.base_remota(tokens[1], std::stoi(tokens[2]), std::stoi(tokens[3]));
         }
 
         if (cmd == "salir") break;
