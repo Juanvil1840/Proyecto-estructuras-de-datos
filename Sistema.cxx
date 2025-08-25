@@ -15,7 +15,7 @@ void Sistema::FijarComandos(std::vector<Comando> ncomandos) {
 }
 
 // obtener secuencias
-std::list< Secuencia > Sistema:: ObtenerSecuencias(){
+std::list< Secuencia >& Sistema:: ObtenerSecuencias(){
     return( secuencias );
 }
 
@@ -76,8 +76,42 @@ void Sistema :: cargar(std:: string nombre_archivo){
 
 //COMANDO LISTAR_SECUENCIAS
 void Sistema :: listar_secuencias(){
+    std::list<Secuencia>& secuencias = this->ObtenerSecuencias();
 
-    std::cout<<"Exito listar_secuencias \n";
+    if(secuencias.empty()){
+        std:: cout << "No hay secuencias cargadas en memoria" << std::endl;
+    }else{
+     	//Contar bases en cada secuencia
+        std::list<Secuencia>::iterator itS;
+        for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
+	    int bases = 0, codigos = 0;
+
+	    //Recorrer el vector de lineas
+	    std::vector< std::string >::iterator itL;
+	    for(itL = itS->ObtenerLineasSecuencia().begin(); itL != itS->ObtenerLineasSecuencia().end(); itL ++){
+		//Recorrer la cadena de caracteres para contar las bases
+		for(char c: *itL){
+		    if((c == 'A') || (c == 'C') || (c == 'G') || (c == 'T') || (c == 'U')) bases ++;
+		    if(c >= 'A' && c <= 'Z') codigos++;
+		} 
+            }
+	    itS->FijarNumbases(bases);
+	    itS->FijarNumcodigos(codigos);
+        }
+	
+	std::cout << "Hay " << this->ObtenerSecuencias().size() << " secuencias cargadas en memoria" << std::endl;
+	//Imprimir cuantas bases tiene cada secuencia
+	for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
+	    std::string descripcion = itS->ObtenerDescripcion();	    
+descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
+	    std:: cout << "Secuencia " << descripcion << " contiene ";
+	    if(itS->ObtenerNumcodigos() == itS->ObtenerNumbases()){
+		std:: cout << itS->ObtenerNumbases() << " bases. y " << itS->ObtenerNumcodigos() << std::endl;
+	    }else{
+		std:: cout << "al menos " << itS->ObtenerNumbases() << " bases y " << itS->ObtenerNumcodigos() << std::endl;
+	    }
+	}
+    }
 }
 
 //COMANDO HISTOGRAMA
