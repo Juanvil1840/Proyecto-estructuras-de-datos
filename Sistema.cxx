@@ -72,6 +72,12 @@ void Sistema :: cargar(std:: string nombre_archivo){
     }
 
     this->FijarSecuencias(lista);
+
+    //Establecer codigos y bases en cada secuencia recien cargada
+        std::list<Secuencia>::iterator itS;
+        for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
+	    itS -> EstablecerCodigosYBases();
+        }
 }
 
 //COMANDO LISTAR_SECUENCIAS
@@ -80,16 +86,10 @@ void Sistema :: listar_secuencias(){
 
     if(secuencias.empty()){
         std:: cout << "No hay secuencias cargadas en memoria" << std::endl;
-    }else{
-     	//Contar bases en cada secuencia
-        std::list<Secuencia>::iterator itS;
-        for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
-	    itS -> EstablecerCodigosYBases();
-        }
-	
+    }else{	
 	std::cout << "Hay " << this->ObtenerSecuencias().size() << " secuencias cargadas en memoria" << std::endl;
 	//Imprimir cuantas bases tiene cada secuencia
-	//Imprimir cuantas bases tiene cada secuencia
+	std::list<Secuencia>::iterator itS;
 	for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
 	    std::string descripcion = itS->ObtenerDescripcion();	    
 descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
@@ -112,8 +112,6 @@ void Sistema :: histograma(std::string descripcion_secuencia){
     //buscar descripcion_secuencia
     std::list<Secuencia>::iterator itS;
     for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
-	itS -> EstablecerCodigosYBases();
-
 	std::string descripcion = itS->ObtenerDescripcion();
 	descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
 	if( descripcion_secuencia == descripcion){
@@ -187,4 +185,3 @@ void Sistema :: base_remota(std::string base_remota, int i, int j){
     std::cout<<"Exito base_remota"<<base_remota<<" i= "<<i<<" j= "<<j<<"\n";
 
 }
-
