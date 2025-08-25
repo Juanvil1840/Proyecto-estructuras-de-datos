@@ -106,9 +106,9 @@ void Sistema :: listar_secuencias(){
 descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
 	    std:: cout << "Secuencia " << descripcion << " contiene ";
 	    if(itS->ObtenerNumcodigos() == itS->ObtenerNumbases()){
-		std:: cout << itS->ObtenerNumbases() << " bases. y " << itS->ObtenerNumcodigos() << std::endl;
+		std:: cout << itS->ObtenerNumbases() << " bases." << std::endl;
 	    }else{
-		std:: cout << "al menos " << itS->ObtenerNumbases() << " bases y " << itS->ObtenerNumcodigos() << std::endl;
+		std:: cout << "al menos " << itS->ObtenerNumbases() << " bases" << std::endl;
 	    }
 	}
     }
