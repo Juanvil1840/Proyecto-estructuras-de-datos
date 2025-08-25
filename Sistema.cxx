@@ -14,15 +14,25 @@ void Sistema::FijarComandos(std::vector<Comando> ncomandos) {
   this->comandos = ncomandos;
 }
 
+// obtener secuencias
+std::list< Secuencia > Sistema:: ObtenerSecuencias(){
+    return( secuencias );
+}
+
+// fijar secuencias
+void Sistema:: FijarSecuencias (std::list< Secuencia > secs){
+    this->secuencias = secs;
+}
+
 //COMANDO CARGAR
-std::list< Secuencia > Sistema :: cargar(std:: string nombre_archivo){
+void Sistema :: cargar(std:: string nombre_archivo){
 
     std::list<Secuencia> lista;
     std::ifstream file(nombre_archivo);
     
     if (!file.is_open()) {
         std::cout << "(archivo erróneo) " << nombre_archivo << " no se encuentra o no puede leerse." << std::endl;
-        return lista; // lista vacia
+        this->FijarSecuencias(lista); // lista vacia
     }
 
     std::string linea;
@@ -61,7 +71,7 @@ std::list< Secuencia > Sistema :: cargar(std:: string nombre_archivo){
                   << nombre_archivo << "." << std::endl;
     }
 
-    return lista;
+    this->FijarSecuencias(lista);
 }
 
 //COMANDO LISTAR_SECUENCIAS
