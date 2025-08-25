@@ -84,22 +84,11 @@ void Sistema :: listar_secuencias(){
      	//Contar bases en cada secuencia
         std::list<Secuencia>::iterator itS;
         for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
-	    int bases = 0, codigos = 0;
-
-	    //Recorrer el vector de lineas
-	    std::vector< std::string >::iterator itL;
-	    for(itL = itS->ObtenerLineasSecuencia().begin(); itL != itS->ObtenerLineasSecuencia().end(); itL ++){
-		//Recorrer la cadena de caracteres para contar las bases
-		for(char c: *itL){
-		    if((c >= 'A' && c <= 'Z') && (c != '-') ) bases ++;
-		    if((c >= 'A' && c <= 'Z') || (c == '-')) codigos++;
-		} 
-            }
-	    itS->FijarNumbases(bases);
-	    itS->FijarNumcodigos(codigos);
+	    itS -> EstablecerCodigosYBases();
         }
 	
 	std::cout << "Hay " << this->ObtenerSecuencias().size() << " secuencias cargadas en memoria" << std::endl;
+	//Imprimir cuantas bases tiene cada secuencia
 	//Imprimir cuantas bases tiene cada secuencia
 	for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
 	    std::string descripcion = itS->ObtenerDescripcion();	    
@@ -114,10 +103,44 @@ descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
     }
 }
 
+
 //COMANDO HISTOGRAMA
 void Sistema :: histograma(std::string descripcion_secuencia){
+    std::list<Secuencia>& secuencias = this->ObtenerSecuencias();
+    bool encontrado = false;
 
-    std::cout<<"Exito histograma " << descripcion_secuencia << "\n";
+    //buscar descripcion_secuencia
+    std::list<Secuencia>::iterator itS;
+    for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
+	itS -> EstablecerCodigosYBases();
+
+	std::string descripcion = itS->ObtenerDescripcion();
+	descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
+	if( descripcion_secuencia == descripcion){
+	    encontrado = true;
+	    int* contadorCodigos = new int[itS->ObtenerCodigos().size()]();
+	  
+	    //Contar cuantos codigos hay de cada uno
+	    std::vector< std::string >::iterator itL;
+	    for(itL = itS->ObtenerLineasSecuencia().begin(); itL != itS->ObtenerLineasSecuencia().end(); itL ++){
+		for(char c: *itL){
+		    for(int i = 0 ; i < itS -> ObtenerCodigos().size() ; i++){
+			if( c == itS -> ObtenerCodigos()[i] ){
+			    contadorCodigos[i]++;
+			}
+		    }
+		} 
+            }
+
+	    //Imprimir histograma
+	    for(int i = 0 ; i < itS -> ObtenerCodigos().size() ; i++){
+		std :: cout << itS -> ObtenerCodigos()[i] << " : " << contadorCodigos[i] << std::endl;
+	    }
+	    delete[] contadorCodigos;
+	}
+    }
+
+    if(!encontrado) std::cout<< "Secuencia invalida" << std::endl;
 }
 
 //COMANDO ES SUBSECUENCIA
@@ -164,3 +187,4 @@ void Sistema :: base_remota(std::string base_remota, int i, int j){
     std::cout<<"Exito base_remota"<<base_remota<<" i= "<<i<<" j= "<<j<<"\n";
 
 }
+
