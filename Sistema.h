@@ -30,4 +30,3 @@ class Sistema {
 #endif // __SISTEMA__H__
 
 // eof - Sistema.h
-
