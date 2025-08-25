@@ -12,7 +12,7 @@ class Sistema {
     void FijarComandos(std::vector<Comando> ncomandos);
     std::list< Secuencia > ObtenerSecuencias();
     void FijarSecuencias (std::list< Secuencia > secs);
-    std::list< Secuencia > cargar(std::string nombre_archivo);
+    void cargar(std::string nombre_archivo);
     void listar_secuencias();
     void histograma(std::string descripcion_secuencia);
     void es_subsecuencia(std::string subsecuencia);
