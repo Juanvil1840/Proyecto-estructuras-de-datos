@@ -10,7 +10,7 @@ class Sistema {
   public:
     const std::vector<Comando>& ObtenerComandos() const;
     void FijarComandos(std::vector<Comando> ncomandos);
-    std::list< Secuencia > ObtenerSecuencias();
+    std::list< Secuencia > & ObtenerSecuencias();
     void FijarSecuencias (std::list< Secuencia > secs);
     void cargar(std::string nombre_archivo);
     void listar_secuencias();
@@ -30,3 +30,4 @@ class Sistema {
 #endif // __SISTEMA__H__
 
 // eof - Sistema.h
+
