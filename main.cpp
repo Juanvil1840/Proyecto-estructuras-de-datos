@@ -122,7 +122,7 @@ int main() {
         if (!valid) continue;
 
 	if(cmd=="cargar"){
-	   sistema.cargar(tokens[1]); 	
+	   sistema.FijarSecuencias(sistema.cargar(tokens[1])); 		
 	}else if(cmd=="listar_secuencias"){
 	   sistema.listar_secuencias();
 	}else if(cmd=="histograma"){
