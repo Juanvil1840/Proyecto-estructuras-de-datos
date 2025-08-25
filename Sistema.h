@@ -10,6 +10,8 @@ class Sistema {
   public:
     const std::vector<Comando>& ObtenerComandos() const;
     void FijarComandos(std::vector<Comando> ncomandos);
+    std::list< Secuencia > ObtenerSecuencias();
+    void FijarSecuencias (std::list< Secuencia > secs);
     std::list< Secuencia > cargar(std::string nombre_archivo);
     void listar_secuencias();
     void histograma(std::string descripcion_secuencia);
@@ -21,6 +23,7 @@ class Sistema {
     void ruta_mas_corta(std::string descripcion_secuencia, int i, int j, int x, int y);
     void base_remota(std::string descripcion_secuencia, int i, int j); 
   protected:
+    std::list< Secuencia > secuencias;
     std::vector<Comando> comandos;
 };
 
