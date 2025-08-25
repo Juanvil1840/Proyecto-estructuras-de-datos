@@ -155,8 +155,30 @@ void Sistema :: enmascarar(std::string subsecuencia){
 
 //COMANDO GUARDAR
 void Sistema :: guardar(std::string nombre_archivo){
+ if(!secuencias.empty()){
+     //Crear/abrir archivo 
+     std::ofstream archivo(nombre_archivo+".fa");
+     if(!archivo){
+       std::cout<<"Error guardando en "<<nombre_archivo<<".\n";
+     }
+     
+     std::vector< std::string >::iterator itCod; //iterador para cada linea 
+     std::list< Secuencia >::iterator itSec; //iterador que me recorrera la lista de secuencias
+     for(itSec = secuencias.begin(); itSec != secuencias.end();  ++itSec){
+        //primero guarda la descripción
+        archivo << ">" << itSec->ObtenerDescripcion() <<"\n";
+        //luego recorre linea por linea el vector que contiene la linea de secuencia
+        for(itCod = itSec->ObtenerLineasSecuencia().begin(); itCod != itSec->ObtenerLineasSecuencia().end(); ++itCod){
+        archivo << *itCod << "\n";
+        }
+     }
+     archivo.close();
+     std::cout<<"Las secuencias han sido guardadas en "<<nombre_archivo<<".fa\n";
 
-    std::cout<<"Exito guardar " << nombre_archivo << "\n";
+
+    }else{
+     std::cout<<"No hay secuencias cargadas en memoria. \n";
+    }
 }
 
 //COMANDO CODIFICAR
