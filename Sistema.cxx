@@ -91,8 +91,8 @@ void Sistema :: listar_secuencias(){
 	    for(itL = itS->ObtenerLineasSecuencia().begin(); itL != itS->ObtenerLineasSecuencia().end(); itL ++){
 		//Recorrer la cadena de caracteres para contar las bases
 		for(char c: *itL){
-		    if((c == 'A') || (c == 'C') || (c == 'G') || (c == 'T') || (c == 'U')) bases ++;
-		    if(c >= 'A' && c <= 'Z') codigos++;
+		    if((c >= 'A' && c <= 'Z') && (c != '-') ) bases ++;
+		    if((c >= 'A' && c <= 'Z') || (c == '-')) codigos++;
 		} 
             }
 	    itS->FijarNumbases(bases);
