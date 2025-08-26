@@ -27,14 +27,15 @@ void Sistema:: FijarSecuencias (std::list< Secuencia > secs){
 //COMANDO CARGAR
 void Sistema :: cargar(std:: string nombre_archivo){
 
-    std::list<Secuencia> lista;
-    std::ifstream file(nombre_archivo);
+   std::list<Secuencia> lista;
     
+    std::ifstream file(nombre_archivo);
+    // en caso de que el archivo no se abra
     if (!file.is_open()) {
         std::cout << "(archivo erróneo) " << nombre_archivo << " no se encuentra o no puede leerse." << std::endl;
-        this->FijarSecuencias(lista); // lista vacia
+        file.close();
     }
-
+    else{
     std::string linea;
     Secuencia actual;
 
@@ -78,6 +79,7 @@ void Sistema :: cargar(std:: string nombre_archivo){
         for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
 	    itS -> EstablecerCodigosYBases();
         }
+    }
 }
 
 //COMANDO LISTAR_SECUENCIAS
@@ -159,7 +161,7 @@ void Sistema :: guardar(std::string nombre_archivo){
      //Crear/abrir archivo 
      std::ofstream archivo(nombre_archivo+".fa");
      if(!archivo){
-       std::cout<<"Error guardando en "<<nombre_archivo<<".\n";
+       std::cout<<"(problemas en archivo) Error guardando en "<<nombre_archivo<<".\n";
      }
      
      std::vector< std::string >::iterator itCod; //iterador para cada linea 
@@ -173,11 +175,11 @@ void Sistema :: guardar(std::string nombre_archivo){
         }
      }
      archivo.close();
-     std::cout<<"Las secuencias han sido guardadas en "<<nombre_archivo<<".fa\n";
+     std::cout<<"(escritura exitosa) Las secuencias han sido guardadas en "<<nombre_archivo<<".fa\n";
 
 
     }else{
-     std::cout<<"No hay secuencias cargadas en memoria. \n";
+     std::cout<<"(no hay secuencias cargadas) No hay secuencias cargadas en memoria. \n";
     }
 }
 
