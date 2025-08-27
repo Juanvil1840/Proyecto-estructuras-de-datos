@@ -75,7 +75,7 @@ void Secuencia:: EstablecerCodigosYBases(){
     //Recorrer el vector de lineas
     std::vector< std::string >::iterator itL;
     for(itL = this->ObtenerLineasSecuencia().begin(); itL != this->ObtenerLineasSecuencia().end(); itL ++){
-        //Recorrer la cadena de caracteres para contar las bases
+        //Recorrer la cadena de caracteres para contar las bases y codigos
         for(char c: *itL){
 	    if(c >= 'A' && c <= 'Z') bases ++;
 	    if((c >= 'A' && c <= 'Z') || (c == '-')){
@@ -87,7 +87,81 @@ void Secuencia:: EstablecerCodigosYBases(){
   
         } 
     }
-	    this->FijarNumbases(bases);
-	    this->FijarNumcodigos(ncodigos);
-	    this->FijarCodigos(codigos);
+
+    this->FijarNumbases(bases);
+    this->FijarNumcodigos(ncodigos);
+    this->FijarCodigos(codigos);
+}
+
+void Secuencia:: OrdenarCodigosYBases(){
+    std:: string orden = "ACGTURYKMSWBDHVNX-"; //cadena de caracteres que define el orden
+    int* ordenCodigos = new int[this->ObtenerCodigos().size()];
+
+    // Recorre el vector de codigos
+    for(int i = 0 ; i < this -> ObtenerCodigos().size() ; i++){
+	//Recorre el arreglo de caracteres con los ordenes
+	for(int j = 0; j < orden.size() ; j++){
+	    //Establece el orden
+	    if(this -> ObtenerCodigos()[i] == orden[j]){
+		ordenCodigos[i] = j;
+	    }
+	}
+    }
+
+    //Ordenar según el orden anteriormente establecido
+    std::vector< char > codigos = this -> ObtenerCodigos();
+    for(int i = 0; i < this -> ObtenerCodigos().size() ; i++){
+	for (int j = 0; j < this -> ObtenerCodigos().size() - 1; j++){
+	    if (ordenCodigos[j] > ordenCodigos[j + 1]) {
+		int tempOrden = ordenCodigos[j];
+		char tempCodigos = codigos[j];
+
+		ordenCodigos[j] = ordenCodigos[j+1];
+		codigos[j] = codigos[j+1];
+
+		ordenCodigos[j+1] = tempOrden;
+		codigos[j+1] = tempCodigos;
+	    }
+	}
+    }
+
+    this -> FijarCodigos(codigos);
+
+    delete[] ordenCodigos;
+}
+
+bool Secuencia:: VerificarCodigosValidos(){
+    bool SecValida = true;
+    std :: string permitidos = "ACGTURYKMSWBDHVNX-"; //cadena de caracteres que define los codigos permitidos
+    std :: vector<char> invalidos; //vector que guarda todos los caracteres invalidos encontrados
+
+    //Recorrer las lineas de secuencias
+    std::vector< std::string >::iterator itL;
+    for(itL = this->ObtenerLineasSecuencia().begin(); itL != this->ObtenerLineasSecuencia().end(); itL ++){
+        //Recorrer la cadena de caracteres
+        for(char c: *itL){
+
+	    //Las siguientes comparaciones fueron hechas con IA generativa
+
+	    if(permitidos.find(c) == std::string::npos){
+		// Revisar que el caracter no este ya en el vector de invalidos
+		if (std::find(invalidos.begin(), invalidos.end(), c) == invalidos.end()) {
+                    invalidos.push_back(c);
+		}
+	    }
+	}
+    }
+
+    if(!invalidos.empty()){
+	std :: cout << "La secuencia " << this->ObtenerDescripcion() 
+            << " no puede ser cargada en el sistema porque contiene codigos invalidos para una secuencia genetica como: ";
+
+	
+	for(int i = 0; i < invalidos.size(); i++){
+	    std :: cout << '\'' << invalidos[i] << '\''; 
+	}
+	return false;
+    }
+
+    return true;
 }
