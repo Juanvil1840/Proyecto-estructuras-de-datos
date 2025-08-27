@@ -32,52 +32,71 @@ void Sistema :: cargar(std:: string nombre_archivo){
     std::ifstream file(nombre_archivo);
     // en caso de que el archivo no se abra
     if (!file.is_open()) {
-        std::cout << "(archivo erróneo) " << nombre_archivo << " no se encuentra o no puede leerse." << std::endl;
+        std::cout << nombre_archivo << " no se encuentra o no puede leerse." << std::endl;
         file.close();
     }
     else{
-    std::string linea;
-    Secuencia actual;
+        std::string linea;
+        Secuencia actual;
 
-    while (std::getline(file, linea)) {
-        if (!linea.empty() && linea[0] == '>') {
-            // Si ya había una secuencia en construcción
-            if (!actual.ObtenerDescripcion().empty()) {
-                lista.push_back(actual);
-                actual = Secuencia(); // reiniciamos
-            }
-            actual.FijarDescripcion(linea.substr(1)); // quitar '>'
-        } else if (!linea.empty()) {
-            actual.AgregarLineaSecuencia(linea); 
+        while (std::getline(file, linea)) {
+            if (!linea.empty() && linea[0] == '>') {
+                // Si ya había una secuencia en construcción
+                if (!actual.ObtenerDescripcion().empty()) {
+                    lista.push_back(actual);
+                    actual = Secuencia(); // reiniciamos
+                }
+                linea = linea.substr(1); // quitar '>'
+
+		// Metodo para quitar caracteres de saltos de linea y espacios obtenido con IA generativa
+
+		actual.FijarDescripcion(linea.erase(linea.find_last_not_of(" \n\r\t")+1)); //quitar espacios y saltos de linea
+            } else if (!linea.empty()) {
+            actual.AgregarLineaSecuencia(linea.erase(linea.find_last_not_of(" \n\r\t")+1)); 
         }
     }    
 
-    // Guardar la última secuencia
-    if (!actual.ObtenerDescripcion().empty()) {
-        lista.push_back(actual);
-    }
+        // Guardar la última secuencia
+        if (!actual.ObtenerDescripcion().empty()) {
+            lista.push_back(actual);
+        }
 
-    file.close();
+        file.close();
 
-    // muestra en pantalla cuantas cadenas se cargaron
-    if (lista.empty()) {
-        std::cout << "(archivo vacío) " << nombre_archivo 
-                  << " no contiene ninguna secuencia." << std::endl;
-    } else if (lista.size() == 1) {
-        std::cout << "(una sola secuencia) 1 secuencia cargada correctamente desde " 
-                  << nombre_archivo << "." << std::endl;
-    } else {
-        std::cout << "(varias secuencias) " << lista.size() 
-                  << " secuencias cargadas correctamente desde " 
-                  << nombre_archivo << "." << std::endl;
-    }
+	// Verificar que las secuencias tengan unicamente codigos validos
+	std::list<Secuencia> listaAux;
+	std::list<Secuencia>::iterator itS;
+	for(itS = lista.begin(); itS != lista.end(); itS ++){
+	    if(itS -> VerificarCodigosValidos()){
+		listaAux.push_back(*itS);
+	    }else{
+		std :: cout << std:: endl;
+	    }
+	}
 
-    this->FijarSecuencias(lista);
+	this->FijarSecuencias(listaAux);
 
-    //Establecer codigos y bases en cada secuencia recien cargada
-        std::list<Secuencia>::iterator itS;
-        for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
+        // mostrar en pantalla cuantas cadenas fueron validas y se cargaron correctamente
+        if (this->ObtenerSecuencias().empty()) {
+            std::cout << nombre_archivo 
+                      << " no contiene ninguna secuencia." << std::endl;
+        } else if (this->ObtenerSecuencias().size() == 1) {
+            std::cout << "1 secuencia cargada correctamente desde " 
+                      << nombre_archivo << "." << std::endl;
+        } else {
+            std::cout << lista.size() 
+                      << " secuencias cargadas correctamente desde " 
+                      << nombre_archivo << "." << std::endl;
+        }
+
+        //Establecer codigos y bases en cada secuencia recien cargada
+        for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
 	    itS -> EstablecerCodigosYBases();
+        }
+
+	//Ordenar los codigos y bases segun la especificacion de la tabla 1 para cada una de las secuencias
+        for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
+	    itS -> OrdenarCodigosYBases();
         }
     }
 }
@@ -92,10 +111,8 @@ void Sistema :: listar_secuencias(){
 	std::cout << "Hay " << this->ObtenerSecuencias().size() << " secuencias cargadas en memoria" << std::endl;
 	//Imprimir cuantas bases tiene cada secuencia
 	std::list<Secuencia>::iterator itS;
-	for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
-	    std::string descripcion = itS->ObtenerDescripcion();	    
-descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
-	    std:: cout << "Secuencia " << descripcion << " contiene ";
+	for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){	    
+	    std:: cout << "Secuencia " << itS->ObtenerDescripcion() << " contiene ";
 	    if(itS->ObtenerNumcodigos() == itS->ObtenerNumbases()){
 		std:: cout << itS->ObtenerNumbases() << " bases." << std::endl;
 	    }else{
@@ -109,21 +126,30 @@ descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
 //COMANDO HISTOGRAMA
 void Sistema :: histograma(std::string descripcion_secuencia){
     std::list<Secuencia>& secuencias = this->ObtenerSecuencias();
+
+    if (secuencias.empty()) {
+        std::cout << "No hay secuencias cargadas en memoria.\n";
+        return;
+    }
+
     bool encontrado = false;
 
     //buscar descripcion_secuencia
     std::list<Secuencia>::iterator itS;
     for(itS = secuencias.begin(); itS != secuencias.end(); itS ++){
-	std::string descripcion = itS->ObtenerDescripcion();
-	descripcion.erase(descripcion.find_last_not_of(" \n\r\t")+1);
-	if( descripcion_secuencia == descripcion){
+	descripcion_secuencia = descripcion_secuencia.erase(descripcion_secuencia.find_last_not_of(" \n\r\t")+1);
+	if( descripcion_secuencia == itS->ObtenerDescripcion()){
 	    encontrado = true;
 	    int* contadorCodigos = new int[itS->ObtenerCodigos().size()]();
 	  
 	    //Contar cuantos codigos hay de cada uno
 	    std::vector< std::string >::iterator itL;
+	    // Recorre el vector de lineas de secuencia
 	    for(itL = itS->ObtenerLineasSecuencia().begin(); itL != itS->ObtenerLineasSecuencia().end(); itL ++){
-		for(char c: *itL){
+	    // Recorre la cadena de caracteres
+		for (int j = 0; j < itL->size(); j++) {
+		    char c = (*itL)[j];
+		    // Recorre el vector de codigos
 		    for(int i = 0 ; i < itS -> ObtenerCodigos().size() ; i++){
 			if( c == itS -> ObtenerCodigos()[i] ){
 			    contadorCodigos[i]++;
@@ -136,13 +162,13 @@ void Sistema :: histograma(std::string descripcion_secuencia){
 	    for(int i = 0 ; i < itS -> ObtenerCodigos().size() ; i++){
 		std :: cout << itS -> ObtenerCodigos()[i] << " : " << contadorCodigos[i] << std::endl;
 	    }
+
 	    delete[] contadorCodigos;
 	}
     }
 
     if(!encontrado) std::cout<< "Secuencia invalida" << std::endl;
 }
-
 // COMANDO ES_SUBSECUENCIA
 void Sistema::es_subsecuencia(std::string subsecuencia) {
     std::list<Secuencia>& secs = this->ObtenerSecuencias();
@@ -184,8 +210,7 @@ void Sistema::es_subsecuencia(std::string subsecuencia) {
     }
 }
 
-
-//  enmascarar
+//COMANDO ENMASCARAR
 void Sistema::enmascarar(std::string subsecuencia) {
 
     std::list<Secuencia>& secs = this->ObtenerSecuencias();
@@ -255,14 +280,13 @@ void Sistema::enmascarar(std::string subsecuencia) {
     }
 }
 
-
 //COMANDO GUARDAR
 void Sistema :: guardar(std::string nombre_archivo){
  if(!secuencias.empty()){
      //Crear/abrir archivo 
      std::ofstream archivo(nombre_archivo+".fa");
      if(!archivo){
-       std::cout<<"(problemas en archivo) Error guardando en "<<nombre_archivo<<".\n";
+       std::cout<<"Error guardando en "<<nombre_archivo<<".\n";
      }
      
      std::vector< std::string >::iterator itCod; //iterador para cada linea 
@@ -276,11 +300,11 @@ void Sistema :: guardar(std::string nombre_archivo){
         }
      }
      archivo.close();
-     std::cout<<"(escritura exitosa) Las secuencias han sido guardadas en "<<nombre_archivo<<".fa\n";
+     std::cout<<"Las secuencias han sido guardadas en "<<nombre_archivo<<".fa\n";
 
 
     }else{
-     std::cout<<"(no hay secuencias cargadas) No hay secuencias cargadas en memoria. \n";
+     std::cout<<"No hay secuencias cargadas en memoria. \n";
     }
 }
 
