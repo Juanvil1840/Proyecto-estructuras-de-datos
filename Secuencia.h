@@ -19,6 +19,8 @@ class Secuencia {
     void FijarCodigos(std::vector< char > nCodigos);
     void AgregarLineaSecuencia(std::string linea);
     void EstablecerCodigosYBases();
+    void OrdenarCodigosYBases();
+    bool VerificarCodigosValidos();
 
   protected:
     std::string descripcion;
