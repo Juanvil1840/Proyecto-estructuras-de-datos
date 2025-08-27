@@ -94,7 +94,7 @@ void Sistema :: cargar(std:: string nombre_archivo){
 	    itS -> EstablecerCodigosYBases();
         }
 
-	//Ordenar los codigos y bases segun la especificacion de la tabla 1 para cada una de las secuencias
+	   //Ordenar los codigos y bases segun la especificacion de la tabla 1 para cada una de las secuencias
         for(itS = this->ObtenerSecuencias().begin(); itS != this->ObtenerSecuencias().end(); itS ++){
 	    itS -> OrdenarCodigosYBases();
         }
