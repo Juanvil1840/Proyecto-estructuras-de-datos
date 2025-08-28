@@ -182,17 +182,29 @@ void Sistema::es_subsecuencia(std::string subsecuencia) {
     }
 
     long long total = 0;
+
     for (std::list<Secuencia>::iterator it = secs.begin(); it != secs.end(); ++it) {
         Secuencia& s = *it;
-
         const std::vector<std::string>& lineas = s.ObtenerLineasSecuencia();
-        size_t len_total = 0;
-        for (size_t i = 0; i < lineas.size(); ++i) len_total += lineas[i].size();
 
+        // 1) Concatenar SIN whitespace (cruza líneas)
         std::string concat;
-        concat.reserve(len_total);
-        for (size_t i = 0; i < lineas.size(); ++i) concat += lineas[i];
+        // Estimación de capacidad
+        size_t cap = 0;
+        for (size_t i = 0; i < lineas.size(); ++i) cap += lineas[i].size();
+        concat.reserve(cap);
 
+        for (size_t i = 0; i < lineas.size(); ++i) {
+            const std::string& L = lineas[i];
+            for (size_t j = 0; j < L.size(); ++j) {
+                char ch = L[j];
+                // Ignorar CR/LF/TAB/espacio por robustez
+                if (ch == '\r' || ch == '\n' || ch == '\t' || ch == ' ') continue;
+                concat.push_back(ch);
+            }
+        }
+
+        // 2) Buscar con solapamiento
         size_t pos = 0;
         while (true) {
             pos = concat.find(subsecuencia, pos);
@@ -212,7 +224,6 @@ void Sistema::es_subsecuencia(std::string subsecuencia) {
 
 //COMANDO ENMASCARAR
 void Sistema::enmascarar(std::string subsecuencia) {
-
     std::list<Secuencia>& secs = this->ObtenerSecuencias();
     if (secs.empty()) {
         std::cout << "No hay secuencias cargadas en memoria.\n";
@@ -230,42 +241,56 @@ void Sistema::enmascarar(std::string subsecuencia) {
         std::vector<std::string>& lineas = s.ObtenerLineasSecuencia();
         if (lineas.empty()) continue;
 
-        // Guardar longitudes de cada línea
-        std::vector<size_t> largos;
-        largos.reserve(lineas.size());
+        // 1) Guardar anchos "visibles" por línea (sin whitespace)
+        std::vector<size_t> largos; largos.reserve(lineas.size());
         size_t len_total = 0;
+
+        // 2) Concatenar SIN whitespace
+        std::string concat;
+        size_t cap = 0;
+        for (size_t i = 0; i < lineas.size(); ++i) cap += lineas[i].size();
+        concat.reserve(cap);
+
         for (size_t i = 0; i < lineas.size(); ++i) {
-            largos.push_back(lineas[i].size());
-            len_total += lineas[i].size();
+            const std::string& L = lineas[i];
+            size_t cuenta = 0;
+            for (size_t j = 0; j < L.size(); ++j) {
+                char ch = L[j];
+                if (ch == '\r' || ch == '\n' || ch == '\t' || ch == ' ') continue;
+                concat.push_back(ch);
+                ++cuenta;
+            }
+            largos.push_back(cuenta);
+            len_total += cuenta;
         }
 
-        // Concatenar todas las líneas
-        std::string concat;
-        concat.reserve(len_total);
-        for (size_t i = 0; i < lineas.size(); ++i) concat += lineas[i];
-
-        // Buscar y enmascarar (permite solapamientos)
+        // 3) Buscar y enmascarar con solapamiento
         size_t pos = 0;
-        long long en_esta_secuencia = 0;
+        long long en_esta = 0;
         while (true) {
             pos = concat.find(subsecuencia, pos);
             if (pos == std::string::npos) break;
             for (size_t k = 0; k < subsecuencia.size(); ++k) {
                 concat[pos + k] = 'X';
             }
-            ++en_esta_secuencia;
+            ++en_esta;
             ++total_enmascaradas;
             ++pos; // solapamientos
         }
 
-        // Si hubo cambios, reconstruir con los mismos anchos y recalcular métricas
-        if (en_esta_secuencia > 0) {
+        // 4) Si hubo cambios, reconstruir con mismos anchos
+        if (en_esta > 0) {
             std::vector<std::string> nuevas;
             nuevas.reserve(largos.size());
             size_t idx = 0;
             for (size_t i = 0; i < largos.size(); ++i) {
-                nuevas.push_back(concat.substr(idx, largos[i]));
-                idx += largos[i];
+                size_t L = largos[i];
+                if (L == 0) {
+                    nuevas.push_back(std::string()); // línea vacía
+                } else {
+                    nuevas.push_back(concat.substr(idx, L));
+                    idx += L;
+                }
             }
             s.FijarLineasSecuencia(nuevas);
             s.EstablecerCodigosYBases();
@@ -279,6 +304,7 @@ void Sistema::enmascarar(std::string subsecuencia) {
                   << " subsecuencias han sido enmascaradas dentro de las secuencias cargadas en memoria.\n";
     }
 }
+
 
 //COMANDO GUARDAR
 void Sistema :: guardar(std::string nombre_archivo){
